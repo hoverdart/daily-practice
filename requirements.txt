@@ -1,1 +1,2 @@
-openai>=1.0.0
+# No Python package dependencies are required for generation.
+# Daily problem generation is handled by ChatGPT; GitHub Actions is validation-only.
