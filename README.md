@@ -2,7 +2,7 @@
 
 A weekday interview-prep system that keeps algorithmic problem solving, data structures, and language fluency sharp.
 
-Every weekday at **9:00 AM Pacific Time**, the repo generates three original interview-style problems for one language:
+Every weekday at **9:00 AM Pacific Time**, ChatGPT prepares three original interview-style problems for one language and commits them into this repository:
 
 | Day | Language |
 |---|---|
@@ -14,7 +14,7 @@ Every weekday at **9:00 AM Pacific Time**, the repo generates three original int
 | Saturday | Rest |
 | Sunday | Rest |
 
-Each day contains an **easy**, **medium**, and **hard/stretch** problem. The generator is deliberately curriculum-aware: it revisits CS61B material, uses spaced repetition, and gradually introduces adjacent interview patterns.
+Each day contains an **easy**, **medium**, and **hard/stretch** problem. Problem selection is curriculum-aware: it revisits CS61B material, uses spaced repetition from recent `attempt.md` files, and gradually introduces adjacent interview patterns.
 
 ## Daily structure
 
@@ -45,7 +45,7 @@ practice/
 3. Run the provided tests locally.
 4. Fill out `attempt.md` honestly.
 5. Only then read `reference/notes.md` and `reference/optimal.<ext>`.
-6. Commit your attempt. Future daily sets use recent attempt notes as feedback for spaced repetition.
+6. Commit your attempt. Future daily sets can use recent attempt notes as feedback for spaced repetition.
 
 ## Philosophy
 
@@ -60,28 +60,27 @@ The goal is not raw LeetCode volume. The system optimizes for:
 
 Problems are generated as **original interview-style exercises** rather than copying proprietary problem statements from LeetCode, HackerRank, Coderbyte, or similar platforms.
 
-## Automation setup
+## Automation architecture
 
-The workflow lives at `.github/workflows/daily-practice.yml` and runs twice around the Pacific-time boundary; the generator itself proceeds only when the local time in `America/Los_Angeles` is 9 AM on a weekday. This keeps the schedule correct across daylight-saving changes.
+Generation is handled by ChatGPT on the weekday schedule and does **not** require an OpenAI API key in this repository.
 
-The workflow requires one repository secret:
+GitHub Actions is validation-only. Whenever generated practice content is pushed, `.github/workflows/daily-practice.yml` compiles/runs every stored reference solution against its tests. This catches bad generated answers without paying for API generation inside Actions.
 
-- `OPENAI_API_KEY` — used by `scripts/generate_daily.py` to create the day's set through the OpenAI Responses API.
+There are no required repository secrets for the daily-practice workflow.
 
-Optional repository variable:
+## Run tests locally
 
-- `PRACTICE_MODEL` — defaults to `gpt-6.1-sol`.
-
-You can also trigger the workflow manually from GitHub Actions.
-
-## Manual generation
+For one problem:
 
 ```bash
-python -m pip install -r requirements.txt
-OPENAI_API_KEY=... python scripts/generate_daily.py --force
+python scripts/run_problem.py practice/YYYY-MM-DD-language/easy
 ```
 
-Use `--date YYYY-MM-DD` to generate a particular weekday and `--force` to bypass the 9 AM scheduler guard.
+To validate all reference solutions for one generated day:
+
+```bash
+python scripts/check_reference.py practice/YYYY-MM-DD-language
+```
 
 ## Curriculum
 
