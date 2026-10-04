@@ -1,42 +1,42 @@
 # One-time setup
 
-The repository is already scaffolded. To turn on automatic weekday generation, add an OpenAI API key as a GitHub Actions secret.
+No OpenAI API key is required for this repository.
 
-## 1. Add the API key
+Daily problem generation is handled by the ChatGPT weekday automation. GitHub Actions only validates generated content after it is committed.
 
-In this repository, open:
+## What GitHub Actions does
 
-**Settings → Secrets and variables → Actions → New repository secret**
+On pushes or pull requests that touch `practice/**` (or the validation scripts), the workflow:
 
-Create:
+1. checks out the repository;
+2. installs Python, Java, and Node runtimes;
+3. finds every generated `practice/YYYY-MM-DD-language/` directory;
+4. runs `scripts/check_reference.py` for each day;
+5. fails CI if a reference solution does not compile or fails its own tests.
 
-- Name: `OPENAI_API_KEY`
-- Value: your OpenAI API key
+No repository secrets are needed.
 
-Do **not** commit the key to the repository.
+## Local testing
 
-## 2. Optional: choose another model
+Run a problem's tests with:
 
-Under **Settings → Secrets and variables → Actions → Variables**, optionally create:
+```bash
+python scripts/run_problem.py practice/YYYY-MM-DD-language/easy
+```
 
-- Name: `PRACTICE_MODEL`
-- Value: an OpenAI API model name
+Validate a whole day with:
 
-If absent, the generator uses `gpt-6.1-sol`.
+```bash
+python scripts/check_reference.py practice/YYYY-MM-DD-language
+```
 
-## 3. Test it manually
+## Daily schedule
 
-Open **Actions → Generate daily practice → Run workflow**.
+- Monday, 9:00 AM Pacific — Python
+- Tuesday, 9:00 AM Pacific — Java
+- Wednesday, 9:00 AM Pacific — C++
+- Thursday, 9:00 AM Pacific — C
+- Friday, 9:00 AM Pacific — JavaScript
+- Saturday/Sunday — rest
 
-Because Saturday and Sunday are deliberate rest days, a manual run for a weekend date will still skip generation. To test immediately, enter a weekday date such as `2026-10-05` and leave `force` enabled.
-
-The workflow will:
-
-1. generate three problems;
-2. create starter code, tests, attempt logs, notes, and reference solutions;
-3. compile/run each reference solution against its tests;
-4. commit the new `practice/YYYY-MM-DD-language/` directory only if validation succeeds.
-
-## Schedule
-
-The workflow runs Monday through Friday at 9 AM in `America/Los_Angeles`, with daylight-saving handling built in. Saturday and Sunday generate nothing.
+The ChatGPT automation should generate exactly one easy, one medium, and one hard/stretch problem, use recent attempt logs for spaced repetition, create runnable tests plus hidden-in-plain-sight `reference/` materials, and commit the new dated directory to `main`.
