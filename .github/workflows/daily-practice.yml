@@ -1,0 +1,96 @@
+name: Generate daily practice
+
+on:
+  schedule:
+    # 9 AM America/Los_Angeles is 16:00 UTC during PDT and 17:00 UTC during PST.
+    # We schedule both; generate_daily.py only proceeds during the local 9 AM hour.
+    - cron: "0 16 * * 1-5"
+    - cron: "0 17 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "Optional YYYY-MM-DD override"
+        required: false
+        type: string
+      force:
+        description: "Bypass the 9 AM scheduler guard"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      PRACTICE_MODEL: ${{ vars.PRACTICE_MODEL || 'gpt-6.1-sol' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install generator dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Generate scheduled set
+        if: github.event_name == 'schedule'
+        run: python scripts/generate_daily.py
+
+      - name: Generate manual set
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          ARGS=()
+          if [[ -n "${{ inputs.date }}" ]]; then
+            ARGS+=(--date "${{ inputs.date }}")
+          fi
+          if [[ "${{ inputs.force }}" == "true" ]]; then
+            ARGS+=(--force)
+          fi
+          python scripts/generate_daily.py "${ARGS[@]}"
+
+      - name: Find newly generated day
+        id: changed
+        shell: bash
+        run: |
+          DAY="$(git status --porcelain practice 2>/dev/null | awk '{print $2}' | cut -d/ -f1-2 | sort -u | head -n1)"
+          if [[ -n "$DAY" ]]; then
+            echo "day=$DAY" >> "$GITHUB_OUTPUT"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate reference solutions
+        if: steps.changed.outputs.changed == 'true'
+        run: python scripts/check_reference.py "${{ steps.changed.outputs.day }}"
+
+      - name: Commit and push
+        if: steps.changed.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git config user.name "daily-practice-bot"
+          git config user.email "daily-practice-bot@users.noreply.github.com"
+          git add practice
+          git commit -m "Daily practice: $(basename '${{ steps.changed.outputs.day }}')"
+          git push
