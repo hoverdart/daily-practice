@@ -73,8 +73,8 @@ jobs:
         id: changed
         shell: bash
         run: |
-          DAY="$(git status --porcelain practice 2>/dev/null | awk '{print $2}' | cut -d/ -f1-2 | sort -u | head -n1)"
-          if [[ -n "$DAY" ]]; then
+          if git status --porcelain -- practice | grep -q .; then
+            DAY="$(find practice -mindepth 1 -maxdepth 1 -type d | sort | tail -n1)"
             echo "day=$DAY" >> "$GITHUB_OUTPUT"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
