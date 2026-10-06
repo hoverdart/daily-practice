@@ -1,0 +1,2 @@
+import java.util.*;
+public class Solution {public static int countNetworks(int n,int[][] cables){List<List<Integer>> g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());for(int[] e:cables){g.get(e[0]).add(e[1]);g.get(e[1]).add(e[0]);}boolean[] seen=new boolean[n];int count=0;for(int s=0;s<n;s++){if(seen[s])continue;count++;Deque<Integer> st=new ArrayDeque<>();st.push(s);seen[s]=true;while(!st.isEmpty()){int u=st.pop();for(int v:g.get(u))if(!seen[v]){seen[v]=true;st.push(v);}}}return count;}}

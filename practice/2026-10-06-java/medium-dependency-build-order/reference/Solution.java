@@ -1,0 +1,2 @@
+import java.util.*;
+public class Solution {public static int[] buildOrder(int n,int[][] d){List<List<Integer>> g=new ArrayList<>();for(int i=0;i<n;i++)g.add(new ArrayList<>());int[] in=new int[n];for(int[] e:d){g.get(e[0]).add(e[1]);in[e[1]]++;}PriorityQueue<Integer> q=new PriorityQueue<>();for(int i=0;i<n;i++)if(in[i]==0)q.offer(i);int[] ans=new int[n];int k=0;while(!q.isEmpty()){int u=q.poll();ans[k++]=u;for(int v:g.get(u))if(--in[v]==0)q.offer(v);}return k==n?ans:new int[0];}}

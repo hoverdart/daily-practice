@@ -1,0 +1,2 @@
+import java.util.*;
+public class TestSolution {static void check(int[] g,int[] e){if(!Arrays.equals(g,e))throw new AssertionError(Arrays.toString(g));}public static void main(String[] a){check(Solution.buildOrder(4,new int[][]{{0,1},{0,2},{1,3},{2,3}}),new int[]{0,1,2,3});check(Solution.buildOrder(3,new int[][]{{0,1},{1,2},{2,0}}),new int[]{});check(Solution.buildOrder(4,new int[][]{}),new int[]{0,1,2,3});check(Solution.buildOrder(5,new int[][]{{0,3},{1,3},{1,4},{2,4}}),new int[]{0,1,2,3,4});System.out.println("All tests passed.");}}
