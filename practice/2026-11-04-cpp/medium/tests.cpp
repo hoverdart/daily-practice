@@ -29,7 +29,7 @@ int main() {
     assert((wildcardSignatureMatches("AB","A??")==std::vector<int>{}));
     assert((wildcardSignatureMatches("","?")==std::vector<int>{}));
     assert((wildcardSignatureMatches("AAAA","AA")==std::vector<int>{0,1,2}));
-    assert((wildcardSignatureMatches("ABCBAC","ABC")==std::vector<int>{0,1,2,3}));
+    assert((wildcardSignatureMatches("ABCBAC","ABC")==std::vector<int>{0,2,3}));
 
     std::mt19937 rng(1130426);
     for (int t=0;t<2600;++t) {
