@@ -81,7 +81,7 @@ public class TestSolution {
         check(grid("S.G#E"), -1);
         check(grid("S.F.E"), -1);
         check(grid("S...E"), 4);
-        check(grid("SF","GE"), 2); // through G; F makes another route unsafe
+        check(grid("SF","GE"), -1); // flood reaches E at minute 1
 
         Random rng = new Random(20261110);
         for (int trial = 0; trial < 1_200; trial++) {
