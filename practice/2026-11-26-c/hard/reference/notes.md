@@ -1,0 +1,15 @@
+# Reasoning
+
+**Recognition:** nonnegative weighted graph -> Dijkstra. A secondary objective applies only on equal cost: order labels lexicographically (cost,hops), not by cost alone or a weighted sum. Each link adds (w,1), a strictly positive lexicographic increment even when w=0. Need counts of optimal routes, not arbitrary walks.
+
+**Baseline:** enumerate simple paths (exponential). Every optimum is simple: removing a cycle lowers cost or keeps cost and lowers hops. Exact-hop DP up to n-1 edges is O(n(n+m)) time, O(n) scratch, useful as a small oracle. BFS ignores unequal costs. Standard Dijkstra with a cost-only queue can settle a zero-cost equal-distance predecessor too late for counting.
+
+**Optimal:** initialize best[start]=(0,0), ways[start]=1. Heap ordered by cost then hops. Pop smallest nonstale ticket, relax each outgoing edge with candidate=(cost+w,hops+1). A smaller pair replaces label and ways, and pushes a ticket; an equal pair adds ways modulo M, without a new ticket; a worse pair is ignored. Edge-list indices form adjacency chains (head/next). Lazy heap capacity m+1: only strict improvements enqueue, each finalized vertex scans its outgoing edges once, at most m relaxations plus initial ticket.
+
+**Invariant/proof:** labels represent discovered route costs; any prefix of an optimal route is optimal for its endpoint because adding the same suffix preserves lexicographic ordering. If the minimum nonstale popped label were not optimal, the first unsettled vertex on a better route would already have a smaller tentative label via a settled predecessor, contradiction. All optimal predecessors have strictly smaller pairs, so their final counts have been added before a vertex is popped. Distinct last-edge choices partition optimal routes, including parallel links. Thus no equal-label update can arrive after settlement, and early exit at target is safe. A zero-cost cycle increases hops and cannot be optimal. Example: two parallel 0->1 edges, one 1->3, one 0->2->3 path of equal (5,2) gives three; direct (5,1) supersedes them.
+
+**Complexity:** O(n+m log(m+1)+m) time, O(n+m) extra space for adjacency, labels, and lazy heap. With m=0 the time is O(n). Distances use long long: optimal simple paths have at most n-1 edges, and even a candidate extension fits comfortably. Ways are reduced modulo M after each addition; 2(M-1) fits signed 32-bit int. Allocation ownership remains within the function.
+
+**Common mistakes:** count all cheapest walks regardless of hops; order heap only by cost; replace instead of add on equal pairs; add on strict improvement rather than reset; skip stale check; treat parallel edges as one; add to infinity; use int for costs; use DFS recursion on huge graphs; count a zero-cost self-loop as optimal. Distinguish unreachable {-1,-1,0} from a reachable count of zero modulo M.
+
+**CS61B:** adjacency lists, binary heap swim/sink, Dijkstra relaxation and label-setting proof, asymptotic analysis, array-backed data structures. Contrast with BFS for unit costs, and Bellman-Ford for negative costs. Derive the comparator and relax rule before coding.
