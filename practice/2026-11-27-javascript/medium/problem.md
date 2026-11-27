@@ -9,7 +9,7 @@ Implement `shortestArchiveCut(ids, cap)` in solution.js. Return a nonnegative in
 - `ids=[7,7,7,7], cap=2` -> 2.
 - `ids=[1,2,3], cap=1` -> 0; no deletion needed.
 - `ids=[1,2,3], cap=0` -> 3; every event must be deleted.
-- `ids=[-1,-1,0,0,-1], cap=1` -> 3; remove the middle three or another valid length-three block.
+- `ids=[-1,-1,0,0,-1], cap=1` -> 3; remove the first three entries, leaving [0,-1].
 
 ## Constraints
 - 0 <= ids.length <= 200,000
